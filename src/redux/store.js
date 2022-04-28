@@ -7,6 +7,7 @@ import {
 
 export const AddItem = createAction('items/Add');
 export const RemoveItem = createAction('items/Remove');
+export const FilterList = createAction('filter/Filter');
 
 const DEFAULT_LIST = [
 	{ id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
@@ -20,11 +21,13 @@ const ItemsReducer = createReducer(
 	{
 		[AddItem]: (state, action) => [...state, action.payload],
 		[RemoveItem]: (state, action) =>
-			state.filter(item => item.id !== action.payload.id),
+			state.filter(item => item.id !== action.payload),
 	}
 );
 
-const FilterReducer = createReducer('', {});
+const FilterReducer = createReducer('', {
+	[FilterList]: (state, action) => action.payload,
+});
 
 const ContactsReducer = combineReducers({
 	items: ItemsReducer,

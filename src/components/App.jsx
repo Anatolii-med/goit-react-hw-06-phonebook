@@ -4,39 +4,22 @@ import ContactList from './contactList/contactList';
 import { List } from './App.styled';
 import Filter from './filter/filter';
 import shortid from 'shortid';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { AddItem } from 'redux/store';
+import { AddItem, RemoveItem, FilterList } from 'redux/store';
 
 import { useDispatch, useSelector } from 'react-redux';
 
-const DEFAULT_LIST = [
-	{ id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-	{ id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-	{ id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-	{ id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-];
 function App() {
 	const dispatch = useDispatch();
 	const contactValue = useSelector(state => state.contacts.items);
-
-	const [contacts, setContacts] = useState(
-		JSON.parse(localStorage.getItem('contacts')) || DEFAULT_LIST
-	);
-	const [filter, setFilter] = useState('');
-
-	// useEffect(() => {
-	// 	if (localStorage.getItem('contacts')) {
-	// 		const cont = JSON.parse(localStorage.getItem('contacts'));
-	// 		dispatch(AddItem(cont));
-	// 	}
-	// }, []);
+	const filterValue = useSelector(state => state.contacts.filter);
 
 	useEffect(() => {
 		localStorage.setItem('contacts', JSON.stringify(contactValue));
 	}, [contactValue]);
 
-	const normalizeFilter = filter.toLowerCase();
+	const normalizeFilter = filterValue.toLowerCase();
 	const filterCurrentName = contactValue.filter(contact =>
 		contact.name.toLowerCase().includes(normalizeFilter)
 	);
@@ -47,17 +30,15 @@ function App() {
 			name,
 			number,
 		};
-		// setContacts([contact, ...contacts]);
 		dispatch(AddItem(contact));
-		console.log(contactValue);
 	}
 
 	const onFilter = e => {
-		setFilter(e.target.value);
+		dispatch(FilterList(e.target.value));
 	};
 
 	const deleteContacts = id => {
-		setContacts(prevState => contacts.filter(prev => prev.id !== id));
+		dispatch(RemoveItem(id));
 	};
 
 	return (
@@ -68,11 +49,11 @@ function App() {
 					filterContact={filterCurrentName}
 				/>
 			</Section>
-			{contacts.length === 0 ? (
+			{contactValue.length === 0 ? (
 				'No contacts yet'
 			) : (
 				<Section title="Contacts">
-					<Filter filterString={filter} onChange={onFilter} />
+					<Filter filterString={filterValue} onChange={onFilter} />
 					<List>
 						<ContactList
 							contList={filterCurrentName}
